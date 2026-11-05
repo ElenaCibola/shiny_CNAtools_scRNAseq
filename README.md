@@ -28,11 +28,3 @@ shiny::runGitHub(repo = "shiny_CNAtools_scRNAseq", username = "ElenaCibola")
 2. **Data:** BAM vs matrix; phasing panel; bulk DNA; prior normal reference; presence of normal cells.
 3. **Sample:** species; heterozygosity; sample type; purity; ploidy/copy-neutral events; batch; platform; N cells; depth.
 4. **Resources:** language; multi-threading.
-
-## Extending
-
-* **New tool:** add a row to `tools_kb.csv`.
-* **New condition:** add a column to the KB and an element to `QUESTIONS` with `apply(kb, a, all)` returning `rule(...)`.
-* **Heuristic thresholds:** (e.g., 500 cells for allele-aware tools) are located in `engine.R`: to be validated.
-
-```
