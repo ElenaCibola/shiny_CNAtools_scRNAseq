@@ -1,0 +1,21 @@
+tool,task,finding,study,note
+Numbat,classification/CNA,"Accuratezza cala sotto ~10.000 UMI/cella e con profondita agli SNP <5",song;chang,solo informativo
+Numbat,reference,"Unico tool con buone prestazioni su linee cellulari analizzate senza cellule normali",song,solo informativo
+Numbat,cnLOH,"Alta sensibilita ma bassa precisione nel calling di cnLOH (molti sono in realta gain/loss)",song,solo informativo
+CopyKAT,classification,"Robusto a bassa profondita (fino a ~1.000 UMI/cella) tra i tool expression-only",song,solo informativo
+CopyKAT,computational,"Eseguibile su PC standard; tra i piu veloci",chang;song;chen,solo informativo
+CopyKAT,classification,"Falsi positivi elevati in campioni di tumore pancreatico ed endometriale",oketch;dugo,solo informativo
+SCEVAN,classification,"Prestazioni scarse con frazione tumorale <40%",song,solo informativo
+SCEVAN,CNA,"Molti segmenti (oltre i breakpoint attesi)",song,solo informativo
+inferCNV,reference,"Sensibilita non calata con riferimenti bulk RNA-seq",chen,solo informativo
+inferCNV,computational,"Fallisce entro 24h a 10.000 cellule",chang,solo informativo
+inferCNV,subclones,"Rileva popolazioni rare >=1% con >500 cellule",chen,solo informativo
+HoneyBADGER,computational,"Variante allelica >24h per >=500 cellule; non termina su 5.880 cellule",chen;schmid,solo informativo
+CaSpER,CNA,"Sensibile alla soglia di stato CNV e instabile al variare di lunghezza/profondita delle letture",chang;chen,solo informativo
+sciCNV,classification,"Nessuna soglia separa in modo affidabile tumore/normale; errori nel codice in un benchmark",oketch;dugo;schmid,solo informativo
+CONICSmat,CNA,"Chiama per braccio; molto efficiente ma fortemente dipendente dal riferimento",schmid,solo informativo
+ClonalScope,preprocessing,"Calo di F1 (mediana -0,16) includendo letture introniche (Cell Ranger v7+)",chang,solo informativo
+XClone,all,"Non valutato in alcun benchmark",none,gap
+infercna,all,"Non valutato in alcun benchmark",none,gap
+all,resolution,"Sensibilita molto bassa per CNV focali <3 Mb",schmid,solo informativo
+all,platform,"Allele-aware piu robusti su droplet grandi (piu lenti); su plate-based pochi SNP chiamabili",schmid,solo informativo
