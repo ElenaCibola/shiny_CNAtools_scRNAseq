@@ -1,17 +1,17 @@
-# Shiny app: selezione guidata di tool per inferenza CNA da scRNA-seq
-# Avvio: shiny::runApp("~/Downloads/files")
+# Shiny app: guided tool selection for CNA inference from scRNA-seq
+# Launch: shiny::runApp("~/Downloads/files")
 library(shiny)
 library(DT)
 
-# Carica le funzioni di supporto da R/engine.R (necessario per QUESTIONS, run_engine, ecc.)
+# Load helper functions from R/engine.R (needed for QUESTIONS, run_engine, etc.)
 source("R/engine.R", local = TRUE)
 
-# Definizione della funzione safe per il markdown (deve stare prima di ui)
+# Definition of the safe markdown function (must be placed before ui)
 includeMarkdown_safe <- function() HTML("
-<p><b>Esclusione</b>: il tool non può soddisfare un tuo vincolo (input richiesto che non hai, output non prodotto, specie non supportata...).</p>
-<p><b>Avvertenza</b>: il tool è utilizzabile, ma il tuo scenario tocca un limite noto per ragioni metodologiche (es. segnale allelico sparso con poche cellule).</p>
-<p><b>Score</b> = (n. bonus) &minus; 0.5 &times; (n. avvertenze). I bonus premiano i tool che sfruttano informazioni che hai. <u>Non</u> è una misura di accuratezza: i benchmark non entrano nel ranking.</p>
-<p><b>Dato mancante</b> (<code>unknown</code>) = informazione non ricavabile dalla review, da completare in <code>data/tools_kb.csv</code>.</p>")
+<p><b>Exclusion</b>: the tool cannot satisfy one of your constraints (required input you don't have, output not produced, unsupported species...).</p>
+<p><b>Warning</b>: the tool is usable, but your scenario touches a known limit for methodological reasons (e.g. sparse allelic signal with few cells).</p>
+<p><b>Score</b> = (no. of bonuses) &minus; 0.5 &times; (no. of warnings). Bonuses reward tools that exploit information you have. <u>Not</u> a measure of accuracy: benchmarks do not enter the ranking.</p>
+<p><b>Missing data</b> (<code>unknown</code>) = information that cannot be derived from the review, to be completed in <code>data/tools_kb.csv</code>.</p>")
 
 kb    <- read.csv("data/tools_kb.csv", na.strings = c("", "NA"), stringsAsFactors = FALSE)
 bench <- read.csv("data/benchmark_evidence.csv", stringsAsFactors = FALSE)
@@ -29,24 +29,24 @@ make_input <- function(q) {
 }
 
 ui <- fluidPage(
-  titlePanel("Quale tool per inferire CNA da scRNA-seq?"),
+  titlePanel("Which tool to infer CNAs from scRNA-seq?"),
   sidebarLayout(
     sidebarPanel(width = 4, style = "max-height:92vh; overflow-y:auto;",
                  lapply(stages, function(s) tagList(h4(s), lapply(Filter(function(q) q$stage == s, QUESTIONS), make_input), hr())),
-                 checkboxInput("show_bench", "Mostra evidenze da benchmark (solo informative, non influenzano il ranking)", FALSE),
-                 actionButton("reset", "Reset risposte")),
+                 checkboxInput("show_bench", "Show benchmark evidence (informative only, does not affect the ranking)", FALSE),
+                 actionButton("reset", "Reset answers")),
     mainPanel(width = 8, tabsetPanel(
-      tabPanel("Raccomandazione", br(), uiOutput("top"), h4("Tutti i tool compatibili"),
-               DTOutput("ok_tbl"), br(), downloadButton("dl", "Scarica (CSV)")),
-      tabPanel("Percorso decisionale", br(),
-               p("Numero di tool ancora compatibili dopo ogni domanda."),
+      tabPanel("Recommendation", br(), uiOutput("top"), h4("All compatible tools"),
+               DTOutput("ok_tbl"), br(), downloadButton("dl", "Download (CSV)")),
+      tabPanel("Decision path", br(),
+               p("Number of tools still compatible after each question."),
                plotOutput("funnel", height = "520px"), DTOutput("trace_tbl")),
-      tabPanel("Tool esclusi", br(), DTOutput("excl_tbl")),
-      tabPanel("Evidenze benchmark", br(), uiOutput("bench_msg"), DTOutput("bench_tbl")),
+      tabPanel("Excluded tools", br(), DTOutput("excl_tbl")),
+      tabPanel("Benchmark evidence", br(), uiOutput("bench_msg"), DTOutput("bench_tbl")),
       tabPanel("Knowledge base", br(),
-               p("Attributi dei tool usati dalle regole. 'unknown' = dato da verificare: il tool NON viene escluso, ma compare un'avvertenza."),
+               p("Tool attributes used by the rules. 'unknown' = data to be verified: the tool is NOT excluded, but a warning appears."),
                DTOutput("kb_tbl")),
-      tabPanel("Come leggere i risultati", br(), includeMarkdown_safe())
+      tabPanel("How to read the results", br(), includeMarkdown_safe())
     ))
   )
 )
@@ -60,16 +60,16 @@ server <- function(input, output, session) {
   output$top <- renderUI({
     ok <- tabs()$ok
     if (!nrow(ok)) return(div(class = "alert alert-danger",
-                              "Nessun tool soddisfa tutti i vincoli. Guarda 'Tool esclusi' per i motivi e valuta quale vincolo rilassare."))
+                              "No tool satisfies all the constraints. See 'Excluded tools' for the reasons and consider which constraint to relax."))
     top <- ok[ok$Score == max(ok$Score), ]
-    div(h4("Tool consigliati (miglior corrispondenza con i tuoi vincoli)"),
+    div(h4("Recommended tools (best match with your constraints)"),
         lapply(seq_len(nrow(top)), function(i) div(class = "panel panel-success",
                                                    div(class = "panel-heading", strong(top$Tool[i]), span(style = "float:right", top$Classe[i])),
                                                    div(class = "panel-body",
-                                                       if (nzchar(top$Perche[i])) p(strong("Punti a favore: "), top$Perche[i]),
-                                                       if (nzchar(top$Avvertenze[i])) tagList(strong("Avvertenze:"),
+                                                       if (nzchar(top$Perche[i])) p(strong("Pros: "), top$Perche[i]),
+                                                       if (nzchar(top$Avvertenze[i])) tagList(strong("Warnings:"),
                                                                                               tags$ul(lapply(strsplit(top$Avvertenze[i], "; ", fixed = TRUE)[[1]], tags$li)))
-                                                       else p("Nessuna avvertenza per questo scenario.")))))
+                                                       else p("No warnings for this scenario.")))))
   })
   output$ok_tbl   <- renderDT(datatable(tabs()$ok,   rownames = FALSE, options = list(pageLength = 15, dom = "tip")))
   output$excl_tbl <- renderDT(datatable(tabs()$excl, rownames = FALSE, options = list(pageLength = 15, dom = "tip")))
@@ -80,12 +80,12 @@ server <- function(input, output, session) {
     tr <- res()$trace
     op <- par(mar = c(4, 14, 2, 1)); on.exit(par(op))
     bp <- barplot(rev(tr$remaining), names.arg = rev(tr$step), horiz = TRUE, las = 1, cex.names = .85,
-                  xlim = c(0, nrow(kb) + 1), xlab = "Tool compatibili", col = "#4C78A8", border = NA)
+                  xlim = c(0, nrow(kb) + 1), xlab = "Compatible tools", col = "#4C78A8", border = NA)
     text(rev(tr$remaining), bp, rev(tr$remaining), pos = 4, cex = .85)
   })
   
   output$bench_msg <- renderUI(if (!isTRUE(input$show_bench))
-    p("Attiva 'Mostra evidenze da benchmark' nella barra laterale. Le evidenze sono mostrate solo per i tool ancora compatibili e NON modificano esclusioni né ranking."))
+    p("Enable 'Show benchmark evidence' in the sidebar. The evidence is shown only for tools that are still compatible and does NOT change exclusions or ranking."))
   output$bench_tbl <- renderDT({
     req(input$show_bench)
     b <- bench[bench$tool %in% c(kb$tool[res()$alive], "all"), ]
