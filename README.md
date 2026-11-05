@@ -7,7 +7,7 @@ I benchmark NON entrano in esclusioni né ranking (restano consultabili in una t
 ## Avvio
 ```r
 install.packages(c("shiny", "DT"))
-shiny::runApp("cna_tool_selector")
+shiny::runGitHub(repo = "shiny_CNAtools_scRNAseq", username = "ElenaCibola")
 ```
 
 ## Struttura
